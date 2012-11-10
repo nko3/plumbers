@@ -1,13 +1,12 @@
 (function() {
-
+  var pattern = {};
   var el = $('#pattern .workarea table');
   $('#pattern .toolbar :input').live('change keyup mouseup', function(ev) {
-    console.log('change event');
     pattern.changeSize(parseInt($(this).val(), 10));
   });
 
   $('#pattern').on('change', function(ev, data) {
-    console.log(ev, data);
+    if (!data) { return };
 
     data.instruments.forEach(function(instrument) {
       if (!instrument.play) {
@@ -15,7 +14,6 @@
         if (instrument.type === 'sample') {
           // TODO: SHOW SPINNER
           freesound.createSamplePlay(instrument.id, function(err, play) {
-            console.log('PLAY', play);
             instrument.play = play;
           });
         }
@@ -47,7 +45,52 @@
     });
   });
 
-  var pattern = {};
+
+  $('[data-path="pattern/instruments/volume"]').live('updated', function(ev, obj) {
+    var el = $(this);
+
+    ev.stopImmediatePropagation();
+    // inject other bits
+    obj.path = ['pattern', current, 'instruments', el.parents('tr').index(), 'volume'].join('/');
+    obj.meta = {
+      value : obj.payload,
+      index: el.parents('tr').index(),
+      pattern: current
+    };
+
+    pattern.instrumentVolume(obj);
+
+    el.parents('.sync:first').trigger('updated', {
+      path : obj.path,
+      action : 'change',
+      payload: obj.payload
+    });
+
+    return false;
+  });
+
+  pattern.instrumentVolume = control(/pattern.[\d]*.instruments.[\d]*.volume$/, function(obj, skipNotify) {
+    if (skipNotify) {
+      var parts = skipNotify.path.split('/');
+
+      parts.pop();
+      var instrumentIndex = parseInt(parts.pop(), 10);
+      parts.pop()
+      var patternIndex = parseInt(parts.pop(), 10);
+
+      store.pattern[patternIndex].instruments[instrumentIndex].volume = obj;
+
+      if (patternIndex === current) {
+        $('#pattern .instrument:nth(' + instrumentIndex + ') .volume').val(skipNotify.payload);
+        $('#pattern .instrument:nth(' + instrumentIndex + ') .volume').change();
+      }
+    } else {
+      store.pattern[obj.meta.pattern].instruments[obj.meta.index].volume = obj.payload;
+    }
+  });
+
+
+
   var current = 0;
   pattern.bind = function(name, obj) {
     if (!store[name]) {
@@ -57,7 +100,7 @@
     this.render();
   }
 
-  pattern.addInstrument = control(/pattern\/[\d]*\/instruments/, function(instrument, skipNotify) {
+  pattern.addInstrument = control(/pattern\/[\d]*\/instruments$/, function(instrument, skipNotify) {
     if (!instrument.notes) {
       instrument.notes = [];
     }
@@ -73,7 +116,7 @@
     pattern.render(store.pattern[current].instruments.length-1);
   });
 
-  pattern.removeInstrument = control(/pattern\/[\d]*\/instruments\/[\d]*/, function(instrumentIndex, skipNotify) {
+  pattern.removeInstrument = control(/pattern\/[\d]*\/instruments\/[\d]*$/, function(instrumentIndex, skipNotify) {
     var patternId = current;
 
     if (isNaN(instrumentIndex)) {
@@ -144,7 +187,7 @@
     }
 
     for (i; i<l; i++) {
-      var tr = '<tr><td class="instrument"><a href="#" class="delete">X</a> ' + (p.instruments[i].name || 'unknown') + '</td>';
+      var tr = '<tr><td class="instrument sync"><input data-path="pattern/instruments/volume" type="text" class="volume knob" data-min="0" data-max="100" data-width="40" data-height="40" value="' + (p.instruments[i].volume || 50) + '" /><a href="#" class="delete">X</a> ' + (p.instruments[i].name || 'unknown') + '</td>';
       for (var j=0; j<p.width; j++) {
         var on = (p.instruments[i] && p.instruments[i].notes[j+1]) ? ' on' : '';
         tr +='<td><div class="note' + on + '"></div></td>';
@@ -152,10 +195,10 @@
       tr += '</tr>';
       el.append(tr);
     }
+    $('.knob').knob(defaultKnobOpts);
   };
 
   pattern.update = function(obj) {
-    console.log('ready to update pattern')
     var patternName = obj.path.split('/')[1];
 
     // update
@@ -171,7 +214,6 @@
   pattern.where = 0;
   pattern.play = function() {
     pattern.where = 0;
-    console.log('play');
     this.paused = false;
     var last = 0;
     window.requestAnimationFrame(function c(a) {
@@ -197,7 +239,7 @@
 
         store.pattern[current].instruments.forEach(function(instrument) {
           if (instrument.notes[pattern.where]) {
-            instrument.play();
+            instrument.play && instrument.play();
           }
         });
 
@@ -207,7 +249,6 @@
   };
   pattern.paused = true;
   pattern.pause = function() {
-    console.log('pause');
     $('td.playing').removeClass('playing');
     pattern.paused = true;
   }

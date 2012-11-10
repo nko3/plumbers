@@ -40,6 +40,7 @@ $(function() {
         type: 'sample',
         id : sample.data('id'), // so we can get the waveform and whatnot later
         url: sample.data('url'),
+        volume : 50,
         play : play
       });
     });

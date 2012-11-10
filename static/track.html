@@ -134,13 +134,13 @@
       var obj = {
         action : 'change',
         path : this.$.data('path'),
-        payload:  this.$.val()
+        payload:  parseInt(this.$.val(),10)
       };
 
       this.$.trigger('updated', obj);
     };
 
-    var defaultKnobOpts = {
+    window.defaultKnobOpts = {
       fgColor: '#FFC800',
       bgColor: '#211A00',
       thickness : .6,
@@ -162,6 +162,7 @@
       });
 
       $('.sync').live('updated', function(e, obj) {
+        console.log('control/change', obj);
         socket.emit('control/change', obj);
       });
 

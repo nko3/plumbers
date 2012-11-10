@@ -1,9 +1,9 @@
 (function() {
   window.toolbar = {
-    bpm : function(val) {
+    bpm : control(/toolbar\/bpm/, function(val) {
       $(':input[name=bpm]').val(val);
       $(':input[name=bpm]').change();
-    },
+    }),
     update : function(data) {
       delete data.path;
       Object.keys(data).forEach(function(key) {
@@ -13,6 +13,4 @@
       }.bind(this));
     }
   }
-
-
 })();

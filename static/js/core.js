@@ -43,7 +43,7 @@ $(function() {
     var current = controls.length;
     while(current--) {
       if (controls[current].regex.exec(obj.path)) {
-        controls[current].fn(obj.payload || obj, true);
+        controls[current].fn(obj.payload || obj, obj);
         break;
       }
     }

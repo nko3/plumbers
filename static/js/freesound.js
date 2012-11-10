@@ -6,7 +6,7 @@
 
   window.freesound = {
     search : function(terms, fn) {
-      $.getJSON(base + 'sounds/search?f=duration:[0 TO 2] type:mp3&q=' + escape(terms) + '&api_key=' + key + '&callback=?', function(d) {
+      $.getJSON(base + 'sounds/search?f=duration:[0 TO 3] type:mp3&q=' + escape(terms) + '&api_key=' + key + '&callback=?', function(d) {
         fn(null, d);
       });
     },
@@ -36,9 +36,14 @@
       request.onload = function() {
         engine.context.decodeAudioData(request.response, function(buffer) {
           var play = function(when) {
+
             when = when || 0;
             var source = engine.context.createBufferSource();
             source.buffer = buffer;
+
+            var volume = this.volume || 100;
+            source.gain.value = volume/100;
+            console.log(source.gain.value, volume);
             source.connect(engine.context.destination);
             source.noteOn(when);
           }

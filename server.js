@@ -61,7 +61,10 @@ server.listen(8000);
 io.sockets.on('connection', function(socket) {
   var send = function(name, obj) {
     Object.keys(socket.manager.rooms).forEach(function(roomName) {
-      socket.broadcast.to(roomName).emit(name, obj);
+      if (roomName) {
+        console.log('BROADCAST', roomName);
+        socket.broadcast.to(roomName.replace('/','')).emit(name, obj);
+      }
     });
   }
 
@@ -77,12 +80,13 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('control/change', function(data) {
+      console.log('control/change', data);
       send('control/change', data);
 
       process.nextTick(function() {
 
         db.collection('tracks').findOne({ _id : roomId }, function(err, rec) {
-
+          if (!data.path) { return; }
           var where = rec;
           var parts = data.path.split('/');
           var action = data.action;
@@ -90,9 +94,12 @@ io.sockets.on('connection', function(socket) {
 
           parts.forEach(function(part) {
             if (isNaN(part)) {
-              if (!where[part]) {
+              if (where && !where[part]) {
                 where[part] = {};
               }
+              where = where[part];
+            } else if (!where[part]) {
+              where[part] = [];
               where = where[part];
             } else {
               where = where[parseInt(part, 10)];
