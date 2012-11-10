@@ -11,6 +11,9 @@
     "url": "git@github.com:nko3/plumbers.git"
   },
   "dependencies": {
+    "ecstatic": "~0.1.6",
+    "guid": "0.0.10",
+    "socket.io": "~0.9.11"
   },
   "engines": {
     "node": "0.8.x"

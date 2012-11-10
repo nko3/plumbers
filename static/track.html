@@ -1,0 +1,108 @@
+<html>
+<head>
+  <title></title>
+  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="/js/engine.js"></script>
+  <script type="text/javascript" src="/js/jquery.js"></script>
+  <script type="text/javascript" src="/js/jquery.knob.js"></script>
+  <style>
+    section {
+      border: 1px solid #fff;
+      padding: 10px;
+
+    }
+
+
+    body {
+      font-family: Helvetica, Arial;
+      color: white;
+      background-color: #444;
+    }
+
+    ul {
+
+    }
+
+  </style>
+</head>
+<body id="track">
+  <section id="header"></section>
+
+  <section id="workspace">
+
+    <section id="toolbar">
+      <a href="#">play</a>
+      <input type="text" name="bpm" class="knob" value="120" data-min="0" data-max="400" data-width="60"/>
+      <section class="users">
+        <span class="count">1</span>
+      </section>
+    </section>
+
+    <section id="helper">
+      <section class="input">
+        <input type="text" />
+      </section>
+      <section class="results">
+        <ul class="list"></ul>
+      </section>
+    </section>
+
+    <section id="workarea">
+
+      <section id="pattern">
+        <h1>Pattern</h1>
+        <section class="toolbar">
+          <ul>
+            <li data-action="add">+</li>
+            <li data-action="resize"><input type="text" /></li>
+          </ul>
+        </section>
+      </section>
+
+      <section id="playlist">
+        <h1>playlist</h1>
+      </section>
+
+      <section id="instrument">
+        <h1>instrument</h1>
+        <section class="container"></section>
+      </section>
+
+    <section>
+  </section>
+
+  <section id="footer">
+
+  </section>
+  <script type="text/javascript" src="/js/core.js"></script>
+  <script type="text/javascript">
+    var defaultKnobOpts = {
+      fgColor: '#FFC800',
+      bgColor: '#211A00',
+      thickness : .6
+    };
+
+
+    $('.knob').knob(defaultKnobOpts);
+
+    var socket = io.connect();
+    socket.on('connect', function() {
+      console.log('register');
+      socket.emit('register', {
+        room: window.location.pathname.replace('/track/', '')
+      });
+    });
+
+    socket.on('changes', function (data) {
+      socket.emit('my other event', { my: 'data' });
+    });
+
+    socket.on('user/count', function(count) {
+      console.log('NEW COUNT', count);
+      $('#toolbar .users .count').text(count);
+    });
+
+
+  </script>
+</body>
+</html>
