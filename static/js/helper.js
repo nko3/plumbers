@@ -34,13 +34,6 @@ $(function() {
   $('#helper .results li.sample a.add').live('click', function() {
     var sample = $(this);
     freesound.createSamplePlay(sample.data('id'), function(err, play) {
-      console.log('hrm...', {
-        name: sample.text(),
-        type: 'sample',
-        id : sample.data('id'), // so we can get the waveform and whatnot later
-        url: sample.data('url'),
-        play : play
-      })
       // TODO: cache
       pattern.addInstrument({
         name: sample.text(),
