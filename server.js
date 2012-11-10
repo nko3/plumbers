@@ -3,6 +3,7 @@ var
   handlers = require('./lib/handlers'),
   crypto   = require('crypto'),
   guid = require('guid'),
+  db = require('mongoskin').db('user:password@ds039267.mongolab.com:39267/track?auto_reconnect=true'),
   httpHandler = function(req, res) {
 
     if (req.method === 'GET' && req.url !== '/' && req.url.split('.').length === 1) {
@@ -18,15 +19,18 @@ var
       shasum.update(guid.create().toString());
       var sha = shasum.digest('hex');
 
-// TODO: write to DB
+      db.collection('tracks').insert({
+        _id : sha
+      }, function() {
 
-      res.writeHead(302, {
-        Location: '/track/' + sha,
-        'Content-length': ('/track/' + sha).length,
-        'Content-type': 'text/plain'
+        res.writeHead(302, {
+          Location: '/track/' + sha,
+          'Content-length': ('/track/' + sha).length,
+          'Content-type': 'text/plain'
+        });
+
+        res.end('/track/' + sha);
       });
-
-      res.end('/track/' + sha);
       return;
     }
 
@@ -38,11 +42,37 @@ var
 server.listen(8000);
 
 io.sockets.on('connection', function(socket) {
+  var send = function(name, obj) {
+    Object.keys(socket.manager.rooms).forEach(function(roomName) {
+      socket.broadcast.to(roomName).emit(name, obj);
+    });
+  }
+
 
   socket.on('register', function(data) {
+    var roomId = data.room;
     socket.join(data.room);
     io.sockets.in(data.room).emit('user/count', io.sockets.clients(data.room).length);
+    db.collection('tracks').findOne({ _id : roomId }, function(err, rec) {
+      delete rec._id;
+      socket.emit('track', rec || 'null');
+    });
+
+    socket.on('control/change', function(data) {
+      send('control/change', data);
+
+      process.nextTick(function() {
+        data._id = roomId;
+        db.collection('tracks').save(data, function() {}, {
+          upsert : true,
+          multi: false,
+          safe: false
+        });
+      });
+    });
   });
+
+
 
   socket.on('disconnect', function() {
     if (socket.manager.rooms) {

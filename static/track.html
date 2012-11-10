@@ -2,9 +2,7 @@
 <head>
   <title></title>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-  <script type="text/javascript" src="/js/engine.js"></script>
   <script type="text/javascript" src="/js/jquery.js"></script>
-  <script type="text/javascript" src="/js/jquery.knob.js"></script>
   <style>
     section {
       border: 1px solid #fff;
@@ -20,7 +18,60 @@
     }
 
     ul {
+      list-style: none;
+    }
 
+    .toolbar li {
+      display:inline-block;
+      border: 1px solid #f0f;
+      height: 20px;
+      line-height: 20px;
+      font-size: 1.2em;
+    }
+
+    input[type=text] {
+      border: 2px solid #000;
+    }
+
+    table {
+      border: 1px solid red;
+    }
+
+    table td {
+      padding: 2px;
+    }
+
+    table td.instrument {
+      border: 1px solid green;
+    }
+
+    td .note {
+      background: white;
+      padding: 10px;
+    }
+
+    td .note.on {
+      background: pink;
+      padding: 10px;
+      border: 1px solid;
+    }
+
+    .results .sample li {
+      height: 30px;
+      border-bottom: 1px solid white;
+    }
+    .results .sample a{
+      color: white;
+      font-size: 1.5em;
+      text-decoration: none;
+    }
+
+    li.playing {
+      border: 2px solid orange;
+    }
+
+    td.playing {
+      background: orange;
     }
 
   </style>
@@ -32,7 +83,7 @@
 
     <section id="toolbar">
       <a href="#">play</a>
-      <input type="text" name="bpm" class="knob" value="120" data-min="0" data-max="400" data-width="60"/>
+      <input type="text" name="bpm" data-path="toolbar/bpm" class="knob sync" value="120" data-min="0" data-max="400" data-width="60"/>
       <section class="users">
         <span class="count">1</span>
       </section>
@@ -53,9 +104,12 @@
         <h1>Pattern</h1>
         <section class="toolbar">
           <ul>
-            <li data-action="add">+</li>
-            <li data-action="resize"><input type="text" /></li>
+            <li data-action="add"><a href="#" class="add">+</a></li>
+            <li data-action="resize"><input type="text" name="size" /></li>
           </ul>
+        </section>
+        <section class="workarea">
+          <table class="sync"></table>
         </section>
       </section>
 
@@ -74,27 +128,65 @@
   <section id="footer">
 
   </section>
-  <script type="text/javascript" src="/js/core.js"></script>
   <script type="text/javascript">
+    var defaultKnobUpdate = function() {
+      console.log(this);
+      var obj = {
+        path : this.$.data('path')
+      };
+      obj[this.$.attr('name')] = this.$.val();
+      this.$.trigger('updated', obj);
+    };
+
     var defaultKnobOpts = {
       fgColor: '#FFC800',
       bgColor: '#211A00',
-      thickness : .6
+      thickness : .6,
+      change : defaultKnobUpdate,
+      release : defaultKnobUpdate
     };
 
 
-    $('.knob').knob(defaultKnobOpts);
-
-    var socket = io.connect();
-    socket.on('connect', function() {
-      console.log('register');
-      socket.emit('register', {
-        room: window.location.pathname.replace('/track/', '')
-      });
+    $(function() {
+      $('.knob').knob(defaultKnobOpts);
     });
 
-    socket.on('changes', function (data) {
-      socket.emit('my other event', { my: 'data' });
+    var socket = io.connect();
+    window.ROOM = window.location.pathname.replace('/track/', '');
+    socket.on('connect', function() {
+
+      socket.emit('register', {
+        room: ROOM
+      });
+
+      $.fn.sync = function() {
+        $.each(this, function() {
+
+        });
+      };
+
+      $('.sync').live('updated', function(e, obj) {
+        socket.emit('control/change', obj);
+      });
+
+    });
+
+    socket.on('track', function(data) {
+      if (data.bpm) {
+        console.log('data');
+        $('.sync[name=bpm]').val(data.value);
+        $('.sync[name=bpm]').change();
+      }
+      console.log('TRACK', data);
+    });
+
+    socket.on('control/change', function (data) {
+      console.log('control/change', data);
+
+      if (data.path) {
+        var id = data.path.split('/')[0];
+        window[id].update(data);
+      }
     });
 
     socket.on('user/count', function(count) {
@@ -104,5 +196,13 @@
 
 
   </script>
+
+  <script type="text/javascript" src="/js/core.js"></script>
+  <script type="text/javascript" src="/js/engine.js"></script>
+  <script type="text/javascript" src="/js/pattern.js"></script>
+  <script type="text/javascript" src="/js/jquery.knob.js"></script>
+  <script type="text/javascript" src="/js/freesound.js"></script>
+  <script type="text/javascript" src="/js/helper.js"></script>
+  <script type="text/javascript" src="/js/toolbar.js"></script>
 </body>
 </html>

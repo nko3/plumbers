@@ -1,13 +1,18 @@
 (function() {
   function Engine() {
+    this.context = new webkitAudioContext();
+
 
   };
 
   Engine.prototype = {
 
-    // apply remote changes to the workspace
-    apply : function() {
+    play : function() {
 
+    },
+
+    getBPM : function() {
+      return parseInt($(':input[name=bpm]').val(), 10);
     }
 
   };
