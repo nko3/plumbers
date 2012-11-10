@@ -20,7 +20,13 @@ var
       var sha = shasum.digest('hex');
 
       db.collection('tracks').insert({
-        _id : sha
+        _id : sha,
+        pattern : [
+          {
+            width : 12,
+            instruments : []
+          }
+        ]
       }, function() {
 
         res.writeHead(302, {
@@ -48,31 +54,72 @@ io.sockets.on('connection', function(socket) {
     });
   }
 
-
   socket.on('register', function(data) {
     var roomId = data.room;
     socket.join(data.room);
     io.sockets.in(data.room).emit('user/count', io.sockets.clients(data.room).length);
     db.collection('tracks').findOne({ _id : roomId }, function(err, rec) {
-      delete rec._id;
-      socket.emit('track', rec || 'null');
+      if (rec) {
+        delete rec._id;
+        socket.emit('track', rec || 'null');
+      }
     });
 
     socket.on('control/change', function(data) {
       send('control/change', data);
 
       process.nextTick(function() {
-        data._id = roomId;
-        db.collection('tracks').save(data, function() {}, {
-          upsert : true,
-          multi: false,
-          safe: false
+
+        db.collection('tracks').findOne({ _id : roomId }, function(err, rec) {
+
+          var where = rec;
+          var parts = data.path.split('/');
+          var action = data.action;
+          var last = parts.pop();
+
+          parts.forEach(function(part) {
+console.log(part, isNaN(part));
+            if (isNaN(part)) {
+              if (!where[part]) {
+                where[part] = {};
+              }
+              where = where[part];
+            } else {
+              where = where[parseInt(part, 10)];
+            }
+          });
+
+          if (action === 'change') {
+            if (isNaN(last)) {
+              where[last] = data.payload;
+            } else {
+              where[parseInt(last, 10)] = data.payload;
+            }
+          } else if (action === 'delete') {
+            console.log(where, last);
+            if (Array.isArray(where)) {
+              where.splice(last, 1);
+            } else {
+              delete where[last];
+            }
+          } else if (action === 'add') {
+            if (!Array.isArray(where[last])) {
+              where[last] = data.payload;
+            } else {
+              console.log('add array')
+              where[last].push(data.payload);
+            }
+          }
+
+          db.collection('tracks').save(rec, function() {}, {
+            upsert : true,
+            multi: false,
+            safe: false
+          });
         });
       });
     });
   });
-
-
 
   socket.on('disconnect', function() {
     if (socket.manager.rooms) {
@@ -90,5 +137,3 @@ io.sockets.on('connection', function(socket) {
     }
   });
 });
-
-

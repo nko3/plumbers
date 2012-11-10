@@ -3,13 +3,13 @@
   <title></title>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="/js/jquery.js"></script>
+  <script type="text/javascript" src="/js/core.js"></script>
+  <script type="text/javascript" src="/js/track.js"></script>
   <style>
     section {
       border: 1px solid #fff;
       padding: 10px;
-
     }
-
 
     body {
       font-family: Helvetica, Arial;
@@ -100,16 +100,16 @@
 
     <section id="workarea">
 
-      <section id="pattern">
+      <section id="pattern" data-path="pattern">
         <h1>Pattern</h1>
         <section class="toolbar">
           <ul>
             <li data-action="add"><a href="#" class="add">+</a></li>
-            <li data-action="resize"><input type="text" name="size" /></li>
+            <li data-action="resize"><input type="text" name="size" data-path="pattern/width" /></li>
           </ul>
         </section>
         <section class="workarea">
-          <table class="sync"></table>
+          <table class="sync" data-path="workspace/pattern"></table>
         </section>
       </section>
 
@@ -132,9 +132,11 @@
     var defaultKnobUpdate = function() {
       console.log(this);
       var obj = {
-        path : this.$.data('path')
+        action : 'change',
+        path : this.$.data('path'),
+        payload:  this.$.val()
       };
-      obj[this.$.attr('name')] = this.$.val();
+
       this.$.trigger('updated', obj);
     };
 
@@ -159,12 +161,6 @@
         room: ROOM
       });
 
-      $.fn.sync = function() {
-        $.each(this, function() {
-
-        });
-      };
-
       $('.sync').live('updated', function(e, obj) {
         socket.emit('control/change', obj);
       });
@@ -172,21 +168,13 @@
     });
 
     socket.on('track', function(data) {
-      if (data.bpm) {
-        console.log('data');
-        $('.sync[name=bpm]').val(data.value);
-        $('.sync[name=bpm]').change();
-      }
-      console.log('TRACK', data);
+      window.store = data;
+      track.initialize(data);
     });
 
     socket.on('control/change', function (data) {
       console.log('control/change', data);
-
-      if (data.path) {
-        var id = data.path.split('/')[0];
-        window[id].update(data);
-      }
+      handleUpdate(data);
     });
 
     socket.on('user/count', function(count) {
@@ -197,7 +185,7 @@
 
   </script>
 
-  <script type="text/javascript" src="/js/core.js"></script>
+
   <script type="text/javascript" src="/js/engine.js"></script>
   <script type="text/javascript" src="/js/pattern.js"></script>
   <script type="text/javascript" src="/js/jquery.knob.js"></script>

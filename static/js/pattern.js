@@ -1,16 +1,16 @@
 (function() {
-  var store = {
-    initial : {
-      width : 12,
-      instruments : []
-    }
-  };
 
   var el = $('#pattern .workarea table');
   $('#pattern .toolbar :input').live('change keyup mouseup', function(ev) {
     console.log('change event');
     pattern.changeSize(parseInt($(this).val(), 10));
   });
+
+  $('#pattern').on('change', function(ev, data) {
+    console.log(ev, data);
+    pattern.render();
+  });
+
   var sizeEl = $('#pattern .toolbar :input[name=size]');
   var addInstrumentEl = $('#pattern .toolbar a.add');
   addInstrumentEl.click(function() {
@@ -40,7 +40,7 @@
   };
 
   var pattern = {};
-  var current = 'initial';
+  var current = 0;
   pattern.bind = function(name, obj) {
     if (!store[name]) {
       store[name] = obj || defaults;
@@ -49,36 +49,47 @@
     this.render();
   }
 
-  pattern.addInstrument = function(instrument, skipNotify) {
+  pattern.addInstrument = control(/pattern\/[\d]*\/instruments/, function(instrument, skipNotify) {
+
+
     if (!instrument.notes) {
       instrument.notes = [];
     }
 
-    store[current].instruments.push(instrument);
+    store.pattern[current].instruments.push(instrument);
 
-    !skipNotify && this.notify({
-      method : 'add',
-      instrument : instrument
+    !skipNotify && el.trigger('updated', {
+      path: 'pattern/' + current + '/instruments',
+      action : 'add',
+      payload : instrument
     });
 
-    this.render(store[current].instruments.length-1);
-  };
+    pattern.render(store.pattern[current].instruments.length-1);
+  });
 
-  pattern.removeInstrument = function(instrumentIndex, skipNotify) {
-    store[current].instruments.splice(instrumentIndex, 1);
+  pattern.removeInstrument = control(/pattern\/[\d]*\/instruments\/[\d]*/, function(instrumentIndex, skipNotify) {
+    var patternId = current;
 
-    !skipNotify && this.notify({
-      method : 'remove',
-      instrument : instrumentIndex
+    if (isNaN(instrumentIndex)) {
+      var parts = instrumentIndex.path.split('/');
+      instrumentIndex = parseInt(parts.pop(), 10);
+      parts.pop();
+      patternId = parseInt(parts.pop(), 10);
+    }
+    store.pattern[patternId].instruments.splice(instrumentIndex, 1);
+
+    !skipNotify && el.trigger('updated', {
+      path: 'pattern/'+ patternId + '/instruments/' + instrumentIndex,
+      action : 'delete'
     });
 
     $('#pattern .workarea tr:nth(' + instrumentIndex + ')').remove();
-  };
+  });
 
-  pattern.toggleNote = function(obj, skipNotify) {
+  pattern.toggleNote = control(/pattern.*notes\/[\d]*/, function(obj, skipNotify) {
     var note = $('#pattern .workarea tr:nth(' + obj.y + ') td:nth(' + obj.x + ') .note');
 
-    var instrument = store[current].instruments[obj.y].notes[obj.x] = obj.on;
+    var instrument = store.pattern[current].instruments[obj.y].notes[obj.x] = obj.on;
 
     if (obj.on) {
       note.addClass('on');
@@ -86,56 +97,53 @@
       note.removeClass('on');
     }
 
-    !skipNotify && this.notify({
-      method : 'toggle',
-      note : obj
+    !skipNotify && el.trigger('updated', {
+      path : ['pattern', current, 'instruments', obj.y, 'notes', obj.x].join('/'),
+      action : 'change',
+      payload : obj
     });
-  },
+  }),
 
-  pattern.changeSize = function(width, skipNotify) {
+  pattern.changeSize = control(/pattern.*width$/, function(width, skipNotify) {
     if (width < 2 || isNaN(width)) {
       return;
     }
 
     sizeEl.val(width);
 
-    store[current].width = width;
+    store.pattern[current].width = width;
     // TODO: clean off the old bits in each instrument
 
-    !skipNotify && this.notify({
-      method: 'change',
-      size: width
+    !skipNotify && el.trigger('updated', {
+      path: 'pattern/' + current + '/width',
+      action: 'change',
+      payload: width
     });
 
-    this.render();
-  };
+    pattern.render();
+  });
 
   pattern.render = function(instrument) {
     !instrument && el.html('');
-    var p = store[current];
+    var p = store.pattern[current];
     var l = p.instruments.length;
     var i = instrument || 0;
+
+    sizeEl.val(p.width);
 
     if (typeof instrument !== 'undefined') {
       l = i+1;
     }
-console.log(instrument, i, l);
+
     for (i; i<l; i++) {
       var tr = '<tr><td class="instrument"><a href="#" class="delete">X</a> ' + (p.instruments[i].name || 'unknown') + '</td>';
       for (var j=0; j<p.width; j++) {
-        var on = (p.instruments[i] && p.instruments[i][j]) ? ' on' : '';
+        var on = (p.instruments[i] && p.instruments[i].notes[j+1]) ? ' on' : '';
         tr +='<td><div class="note' + on + '"></div></td>';
       }
       tr += '</tr>';
       el.append(tr);
     }
-  };
-
-  pattern.notify = function(changeHash) {
-    el.trigger('updated', {
-      path : 'pattern/' + current,
-      changes : [changeHash]
-    });
   };
 
   pattern.update = function(obj) {
@@ -166,7 +174,7 @@ console.log(instrument, i, l);
 
       if (now - last > (1000*60)/(bpm*4)) {
 
-        store[current].instruments.forEach(function(instrument) {
+        store.pattern[current].instruments.forEach(function(instrument) {
           if (instrument.notes[pattern.where]) {
             instrument.play();
           }
@@ -182,13 +190,11 @@ console.log(instrument, i, l);
           $('td:nth(' + pattern.where + ')', this).addClass('playing');
         });
 
-        if (pattern.where > store[current].width) {
+        if (pattern.where > store.pattern[current].width) {
           pattern.where = 0;
         }
         last = now;
       }
-
-
     });
   };
   pattern.paused = true;

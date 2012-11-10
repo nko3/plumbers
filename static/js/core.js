@@ -22,4 +22,31 @@ $(function() {
       }
     }
   });
-})
+});
+
+(function() {
+
+  var controls = [];
+
+  window.control = function(regex, fn) {
+    controls.push({
+      regex : regex,
+      fn : fn
+    });
+
+    return function() {
+      fn.apply(null, arguments)
+    };
+  };
+
+  window.handleUpdate = function(obj) {
+    var current = controls.length;
+    while(current--) {
+      if (controls[current].regex.exec(obj.path)) {
+        controls[current].fn(obj.payload || obj, true);
+        break;
+      }
+    }
+  };
+
+})();
