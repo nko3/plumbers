@@ -40,7 +40,6 @@ $(function() {
         type: 'sample',
         url: sample.data('url'),
         play : function() {
-          console.log('PLAY', sound);
           sound.cloneNode().play();
         }
       });

@@ -8,6 +8,19 @@
 
   $('#pattern').on('change', function(ev, data) {
     console.log(ev, data);
+
+    data.instruments.forEach(function(instrument) {
+      if (!instrument.play) {
+
+        // TODO: SHOW SPINNER
+        freesound.sound(instrument.url, function(sound) {
+          instrument.play = function() {
+            sound.cloneNode().play();
+          }
+        })
+      }
+    });
+
     pattern.render();
   });
 
@@ -33,12 +46,6 @@
     });
   });
 
-
-  var defaults = {
-    width : 12,
-    instruments : []
-  };
-
   var pattern = {};
   var current = 0;
   pattern.bind = function(name, obj) {
@@ -50,8 +57,6 @@
   }
 
   pattern.addInstrument = control(/pattern\/[\d]*\/instruments/, function(instrument, skipNotify) {
-
-
     if (!instrument.notes) {
       instrument.notes = [];
     }
@@ -122,6 +127,8 @@
 
     pattern.render();
   });
+
+  var instrumentCache = {};
 
   pattern.render = function(instrument) {
     !instrument && el.html('');
