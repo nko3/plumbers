@@ -25,6 +25,27 @@
       a.src = url + '?api_key=' + key;
       a.load();
       fn(a);
+    },
+
+    createSamplePlay : function(id, fn) {
+      var request = new XMLHttpRequest();
+      request.open('GET',  "/sound/?id=" + id, true);
+      request.responseType = 'arraybuffer';
+
+      // Decode asynchronously
+      request.onload = function() {
+        engine.context.decodeAudioData(request.response, function(buffer) {
+          var play = function(when) {
+            when = when || 0;
+            var source = engine.context.createBufferSource();
+            source.buffer = buffer;
+            source.connect(engine.context.destination);
+            source.noteOn(when);
+          }
+          fn(null, play);
+        }, fn);
+      }
+      request.send();
     }
   };
 })();

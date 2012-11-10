@@ -12,12 +12,13 @@
     data.instruments.forEach(function(instrument) {
       if (!instrument.play) {
 
-        // TODO: SHOW SPINNER
-        freesound.sound(instrument.url, function(sound) {
-          instrument.play = function() {
-            sound.cloneNode().play();
-          }
-        })
+        if (instrument.type === 'sample') {
+          // TODO: SHOW SPINNER
+          freesound.createSamplePlay(instrument.id, function(err, play) {
+            console.log('PLAY', play);
+            instrument.play = play;
+          });
+        }
       }
     });
 
@@ -180,17 +181,8 @@
       var now = window.performance.webkitNow();
 
       if (now - last > (1000*60)/(bpm*4)) {
-
-        store.pattern[current].instruments.forEach(function(instrument) {
-          if (instrument.notes[pattern.where]) {
-            instrument.play();
-          }
-        });
-
         var rows = $('#pattern .workarea tr');
-        rows.each(function() {
-          $('td:nth(' + pattern.where + ')', this).removeClass('playing');
-        });
+        $('td.playing', rows).removeClass('playing');
         pattern.where++;
 
         rows.each(function() {
@@ -201,6 +193,15 @@
           pattern.where = 0;
         }
         last = now;
+
+
+        store.pattern[current].instruments.forEach(function(instrument) {
+          if (instrument.notes[pattern.where]) {
+            instrument.play();
+          }
+        });
+
+
       }
     });
   };

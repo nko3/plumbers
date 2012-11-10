@@ -3,8 +3,19 @@ var
   handlers = require('./lib/handlers'),
   crypto   = require('crypto'),
   guid = require('guid'),
+  key = 'b11b974175724370b5bed497d23e8fea',
+  base = 'http://www.freesound.org/api/',
+  qs = require('querystring'),
+  request = require('request'),
   db = require('mongoskin').db('user:password@ds039267.mongolab.com:39267/track?auto_reconnect=true'),
   httpHandler = function(req, res) {
+
+    if (req.url.substring(0,6) === '/sound') {
+      var parts = qs.parse(req.url.split('?').pop());
+      console.log(base + 'sound/' + parts.id + '/serve?api_key=' + key);
+      request(base + 'sounds/' + parts.id + '/serve?api_key=' + key).pipe(res);
+      return;
+    }
 
     if (req.method === 'GET' && req.url !== '/' && req.url.split('.').length === 1) {
       if (req.url.indexOf('/track/') === 0 && req.url.length > 7) {
@@ -78,7 +89,6 @@ io.sockets.on('connection', function(socket) {
           var last = parts.pop();
 
           parts.forEach(function(part) {
-console.log(part, isNaN(part));
             if (isNaN(part)) {
               if (!where[part]) {
                 where[part] = {};

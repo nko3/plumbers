@@ -21,7 +21,7 @@ $(function() {
             //sound.
             '" style="background: url(\'' + sound.spectral_m +'\') 50% 50% no-repeat">',
             '<a href="#" class="preview" data-url="' + sound['preview-lq-mp3'] + '">|></a> ',
-            '<a href="#" class="add" data-url="' + sound.serve + '">' + f + '</a>',
+            '<a href="#" class="add" data-url="' + sound.serve + '" data-id="' + sound.id + '">' + f + '</a>',
             '</li>'
           ].join(''));
         });
@@ -33,15 +33,21 @@ $(function() {
 
   $('#helper .results li.sample a.add').live('click', function() {
     var sample = $(this);
-    freesound.sound(sample.data('url'), function(sound) {
+    freesound.createSamplePlay(sample.data('id'), function(err, play) {
+      console.log('hrm...', {
+        name: sample.text(),
+        type: 'sample',
+        id : sample.data('id'), // so we can get the waveform and whatnot later
+        url: sample.data('url'),
+        play : play
+      })
       // TODO: cache
       pattern.addInstrument({
         name: sample.text(),
         type: 'sample',
+        id : sample.data('id'), // so we can get the waveform and whatnot later
         url: sample.data('url'),
-        play : function() {
-          sound.cloneNode().play();
-        }
+        play : play
       });
     });
     return false;
