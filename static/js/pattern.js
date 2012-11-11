@@ -1,7 +1,11 @@
 (function() {
-  var pattern = {};
+  var pattern = {
+
+
+  };
+
   var el = $('#pattern .workarea table');
-  $('#pattern .toolbar :input').live('change keyup mouseup', function(ev) {
+  $('#pattern .toolbar :input[name=size]').live('change keyup mouseup', function(ev) {
     pattern.changeSize(parseInt($(this).val(), 10));
   });
 
@@ -69,14 +73,41 @@
     return false;
   });
 
+  pattern.createPattern = control(/pattern\/[\d]*/, function(obj, skipNotify) {
+    // TODO: this is a potentially painful experience waiting to happen
+
+    store.pattern.push(obj || {
+      width: 8,
+      instruments: []
+    });
+
+    current = store.pattern.length-1;
+
+    !skipNotify && el.trigger('updated', {
+      path: 'pattern/' + current,
+      action : 'add',
+      payload : store.pattern[store.pattern.length - 1]
+    });
+
+    pattern.render();
+  }),
+
+  pattern.collectSegments = function(path, array) {
+    var parts = path.split('/');
+    var ret = [];
+
+    array.forEach(function(item) {
+      parts[item] && ret.push(parseInt(parts[item], 10));
+    });
+
+    return ret;
+  }
+
   pattern.instrumentVolume = control(/pattern.[\d]*.instruments.[\d]*.volume$/, function(obj, skipNotify) {
     if (skipNotify) {
-      var parts = skipNotify.path.split('/');
-
-      parts.pop();
-      var instrumentIndex = parseInt(parts.pop(), 10);
-      parts.pop()
-      var patternIndex = parseInt(parts.pop(), 10);
+      var parts = pattern.collectSegments(skipNotify.path, [1,3], true);
+      var instrumentIndex = parts.pop();
+      var patternIndex = parts.pop();
 
       store.pattern[patternIndex].instruments[instrumentIndex].volume = obj;
 
@@ -89,8 +120,6 @@
     }
   });
 
-
-
   var current = 0;
   pattern.bind = function(name, obj) {
     if (!store[name]) {
@@ -101,11 +130,16 @@
   }
 
   pattern.addInstrument = control(/pattern\/[\d]*\/instruments$/, function(instrument, skipNotify) {
+    var patternIndex = current
+    if (skipNotify) {
+      patternIndex = pattern.collectSegments(skipNotify.path, [1])[0];
+    }
+
     if (!instrument.notes) {
       instrument.notes = [];
     }
 
-    store.pattern[current].instruments.push(instrument);
+    store.pattern[patternIndex].instruments.push(instrument);
 
     !skipNotify && el.trigger('updated', {
       path: 'pattern/' + current + '/instruments',
@@ -113,18 +147,21 @@
       payload : instrument
     });
 
-    pattern.render(store.pattern[current].instruments.length-1);
+    if (patternIndex === current) {
+      pattern.render(store.pattern[current].instruments.length-1);
+    }
   });
 
   pattern.removeInstrument = control(/pattern\/[\d]*\/instruments\/[\d]*$/, function(instrumentIndex, skipNotify) {
     var patternId = current;
 
     if (isNaN(instrumentIndex)) {
-      var parts = instrumentIndex.path.split('/');
-      instrumentIndex = parseInt(parts.pop(), 10);
-      parts.pop();
-      patternId = parseInt(parts.pop(), 10);
+      var parts = pattern.collectSegments(skipNotify.path,[1,3]);
+
+      instrumentIndex = parts.pop();
+      patternId = parts.pop();
     }
+
     store.pattern[patternId].instruments.splice(instrumentIndex, 1);
 
     !skipNotify && el.trigger('updated', {
@@ -137,8 +174,22 @@
 
   pattern.toggleNote = control(/pattern.*notes\/[\d]*/, function(obj, skipNotify) {
     var note = $('#pattern .workarea tr:nth(' + obj.y + ') td:nth(' + obj.x + ') .note');
+    var patternIndex = current;
+    var instrumentIndex, noteIndex, value;
 
-    var instrument = store.pattern[current].instruments[obj.y].notes[obj.x] = obj.on;
+    if (skipNotify) {
+      var parts = pattern.collectSegments(skipNotify.path, [1,3,5])[0];
+      patternIndex = parts.pop();
+      instrumentIndex = parts.pop();
+      noteIndex = parts.pop();
+      value = obj;
+    } else {
+      instrumentIndex = obj.y;
+      noteIndex = obj.x;
+      value = obj.on;
+    }
+
+    store.pattern[patternIndex].instruments[instrumentIndex].notes[noteIndex] = obj.on;
 
     if (obj.on) {
       note.addClass('on');
@@ -147,9 +198,18 @@
     }
 
     !skipNotify && el.trigger('updated', {
-      path : ['pattern', current, 'instruments', obj.y, 'notes', obj.x].join('/'),
+      path : [
+        'pattern',
+        patternIndex,
+        'instruments',
+        instrumentIndex,
+        'notes',
+        noteIndex
+      ].join('/'),
+
       action : 'change',
-      payload : obj
+      payload : obj.on,
+      meta: obj
     });
   }),
 
@@ -158,13 +218,17 @@
       return;
     }
 
+    var patternIndex = current;
+    if (skipNotify) {
+      patternIndex = pattern.collectSegments(skipNotify.path, [1])[0]
+    }
+
     sizeEl.val(width);
 
-    store.pattern[current].width = width;
-    // TODO: clean off the old bits in each instrument
+    store.pattern[patternIndex].width = width;
 
     !skipNotify && el.trigger('updated', {
-      path: 'pattern/' + current + '/width',
+      path: 'pattern/' + patternIndex + '/width',
       action: 'change',
       payload: width
     });
@@ -172,13 +236,33 @@
     pattern.render();
   });
 
+  pattern.changePattern = function(index) {
+    if (store.pattern[index]) {
+      current = index;
+      pattern.render();
+      localStorage.setItem('pattern', index+1);
+    }
+  };
+
+  $('#pattern .current').on('change keyup', function() {
+    var el = $(this);
+
+    var res = parseInt(el.val(), 10)-1;
+    if (store.pattern[res]) {
+      pattern.changePattern(res);
+    }
+  });
+
   var instrumentCache = {};
 
   pattern.render = function(instrument) {
     !instrument && el.html('');
     var p = store.pattern[current];
-    var l = p.instruments.length;
+    var l = p.instruments ? p.instruments.length : 0;
     var i = instrument || 0;
+
+    $('#pattern .total').text(store.pattern.length);
+    $('#pattern .current').text(current+1);
 
     sizeEl.val(p.width);
 

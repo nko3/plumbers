@@ -74,6 +74,15 @@
       background: orange;
     }
 
+
+    #header {
+      height: 50px;
+      border-bottom:1px solid #FFF;
+      padding-left: 200px;
+      background: url(/img/logo.png) no-repeat;
+    }
+
+
   </style>
 </head>
 <body id="track">
@@ -113,7 +122,8 @@
           <ul>
             <li data-action="add">add:<a href="#" class="add">+</a></li>
             <li data-action="resize">width: <input type="text" name="size" data-path="pattern/width" /></li>
-            <li data-action="resize"><input type="text" name="size" data-path="pattern/current" value="0" /></li>
+
+            <li>pattern <input type="text" class="current" value="" /></span>/<span class="total">1</span></li>
           </ul>
         </section>
         <section class="workarea">
