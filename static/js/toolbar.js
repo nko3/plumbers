@@ -1,4 +1,17 @@
-(function() {
+$(function() {
+  var preloadPause = new Image();
+  preloadPause.src = '/img/pause.png';
+
+  $(document).on('play', function() {
+    $('#header a.play img').attr('src', '/img/pause.png');
+  });
+
+
+  $(document).on('pause', function() {
+    $('#header a.play img').attr('src', '/img/play.png');
+  });
+
+
   var el = $('#toolbar');
 
 
@@ -25,17 +38,13 @@
     }
   };
 
-
-  $(':input.volume', el).knob({
-    fgColor: defaultKnobOpts.fgColor,
-    bgColor: defaultKnobOpts.bgColor,
-    thickness : defaultKnobOpts.thickness,
+  $(':input.volume', el).knob($.extend(defaultKnobOpts, {
     change : toolbar.volume,
     release : toolbar.volume
-  });
+  }));
 
   if (localStorage.getItem('volume')) {
     toolbar.volume(localStorage.getItem('volume'));
   }
 
-})();
+});
