@@ -12,7 +12,7 @@ $(function() {
   });
 
 
-  var el = $('#toolbar');
+  var el = $('#header #toolbar');
 
 
   window.toolbar = {
@@ -24,6 +24,7 @@ $(function() {
       localStorage.setItem('volume', val);
 
       val = parseInt(val);
+
       $(':input[name=volume]', el).val(val);
       $(':input[name=volume]', el).change();
       engine.gain.gain.value = val/100;
@@ -37,11 +38,6 @@ $(function() {
       }.bind(this));
     }
   };
-
-  $(':input.volume', el).knob($.extend(defaultKnobOpts, {
-    change : toolbar.volume,
-    release : toolbar.volume
-  }));
 
   if (localStorage.getItem('volume')) {
     toolbar.volume(localStorage.getItem('volume'));
