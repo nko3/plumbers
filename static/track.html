@@ -136,13 +136,20 @@
     }
 
     #header {
-      height: 100px;
-      border: none;
-      padding: 10px;
-      padding-left: 200px;
-      background: url(/img/plumbers_logo.png) no-repeat 30px 30px #222;
-      margin:0;
-      margin-bottom:10px;
+      position:fixed;
+      padding-bottom: 10px;
+      padding-right: 30px;
+      z-index: 7;
+      width: 300px;
+      height: 70px;
+      bottom:0;
+      left:0;
+
+      background-color: #626262;
+
+      -webkit-border-top-right-radius: 10px;
+      -moz-border-radius-topright: 10px;
+      border-top-right-radius: 10px;
     }
 
 
@@ -194,8 +201,10 @@
     }
 
     #header .play-pause {
+      margin-left: 10px;
       margin-right: 10%;
-      padding-top: 20px;
+
+      padding-top: 10px;
     }
 
     #header .users {
@@ -218,12 +227,39 @@
     }
 
     #header .bpm {
-      padding-top: 10px;
-      margin-left: 10%;
+      padding-top: 5px;
+      margin-right: 10%;
+      vertical-align:text-bottom;
+      display:inline-block;
+    }
+
+    #header .bpm .label {
+      padding-right:20px;
+      margin-top:10px;
+      position:absolute;
+      bottom:5px;
+    }
+
+    #header .bpm input {
+      bottom: 4px !important;
+      left: 185px !important;
     }
 
     #header .volume {
-      padding-top: 10px;
+      padding-top: 5px;
+    }
+
+
+    #header .volume input {
+      bottom: 4px !important;
+      left: 268px !important;
+    }
+
+    #header .volume .label {
+      margin-top:10px;
+      position:absolute;
+      bottom:5px;
+      margin-left: 5px;
     }
 
     #header .users .count {
@@ -239,19 +275,19 @@
 
     <section id="toolbar">
       <section class="play-pause left">
-        <a href="#" class="play"><img src="/img/play.png" height="58"/></a>
+        <a href="#" class="play"><img src="/img/play.png" height="60"/></a>
       </section>
 
       <section class="users right">
         Users: <span class="count">0</span>
       </section>
-      <section class="bpm right">
-        bpm:
-        <input type="text" name="bpm" data-path="toolbar/bpm" class="knob sync" value="120" data-min="0" data-max="400" data-width="70" data-height="70"/>
+      <section class="bpm left">
+        <span class="label">bpm</span>
+        <input type="text" name="bpm" data-path="toolbar/bpm" class="knob sync" value="120" data-min="0" data-max="400" data-width="60" data-height="60"/>
       </section>
-      <section class="volume right">
-        volume:
-        <input type="text" name="volume" data-path="toolbar/volume" class="volume" value="85" data-min="0" data-max="100" data-width="70" data-height="70"/>
+      <section class="volume left">
+        <span class="label">vol</span>
+        <input type="text" name="volume" data-path="toolbar/volume" class="volume" value="85" data-min="0" data-max="100" data-width="60" data-height="60"/>
 
       </section>
 
@@ -323,19 +359,85 @@
       this.$.trigger('updated', obj);
     };
 
+    var whiteKnob = new Image();
+    whiteKnob.src = '/img/knob_med.png';
+    whiteKnob.width = 20;
+
     window.defaultKnobOpts = {
       fgColor: '#FFC800',
-      bgColor: 'rgba(0,0,0,0)',
-      thickness : .1,
-      angleOffset: -150,
-      angleArc: 300,
+      bgColor: '#444',
+      thickness : .5,
+      angleOffset: -135,
+      angleArc: 270,
       change : defaultKnobUpdate,
-      release : defaultKnobUpdate
+      release : defaultKnobUpdate,
+      draw : function waitForKnob() {
+
+          var c = this.g,                 // context
+                a = this.angle(this.cv)    // Angle
+                , sat = this.startAngle     // Start angle
+                , eat = sat + a             // End angle
+                , sa, ea                    // Previous angles
+                , r = 1;
+
+            c.lineWidth = this.lineWidth;
+
+            this.o.cursor
+                && (sat = eat - this.cursorExt)
+                && (eat = eat + this.cursorExt);
+
+            c.beginPath();
+                c.strokeStyle = this.o.bgColor;
+                c.arc(this.xy, this.xy, this.radius-2, this.endAngle, this.startAngle, true);
+            c.stroke();
+
+            if (this.o.displayPrevious) {
+                ea = this.startAngle + this.angle(this.v);
+                sa = this.startAngle;
+                this.o.cursor
+                    && (sa = ea - this.cursorExt)
+                    && (ea = ea + this.cursorExt);
+
+                c.beginPath();
+                    c.strokeStyle = this.pColor;
+                    c.arc(this.xy, this.xy, this.radius-2, sa, ea, false);
+                c.stroke();
+                r = (this.cv == this.v);
+            }
+
+            c.beginPath();
+                c.strokeStyle = r ? this.o.fgColor : this.fgColor ;
+                c.arc(this.xy, this.xy, this.radius-2, sat, eat, false);
+            c.stroke();
+
+            c.drawImage(whiteKnob, 0, 0, this.o.width, this.o.height);
+
+            c.save();
+              c.translate(this.o.width/2, this.o.height/2);
+              c.save();
+                c.rotate(eat);
+                c.beginPath();
+                c.arc(8, 0, 2, 0, Math.PI*2, false);
+                c.strokeStyle = 'rgba(0,0,0,0.4)';
+                c.lineWidth = 2;
+                c.stroke();
+                c.beginPath();
+                c.arc(8, 0, 1, 0, Math.PI*2, false);
+                c.strokeStyle = 'rgba(0,0,0,0.5)';
+                c.lineWidth = 2;
+                c.stroke();
+              c.restore();
+            c.restore();
+
+        return false;
+      }
     };
 
 
     $(function() {
-      $('.knob').knob(defaultKnobOpts);
+      whiteKnob.onload = function() {
+        $('.knob').knob(defaultKnobOpts);
+      };
     });
 
     var socket = io.connect();
