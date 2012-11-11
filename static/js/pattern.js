@@ -10,20 +10,6 @@
   });
 
   $('#pattern').on('change', function(ev, data) {
-    if (!data) { return };
-
-    data.instruments.forEach(function(instrument) {
-      if (!instrument.play) {
-
-        if (instrument.type === 'sample') {
-          // TODO: SHOW SPINNER
-          freesound.createSamplePlay(instrument.id, function(err, play) {
-            instrument.play = play;
-          });
-        }
-      }
-    });
-
     pattern.render();
   });
 
