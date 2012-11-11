@@ -263,9 +263,10 @@
         tr +='<td><div class="note' + on + '"></div></td>';
       }
       tr += '</tr>';
-      el.append(tr);
+      var trEl = $(tr);
+      $('.knob', trEl).knob(defaultKnobOpts);
+      el.append(trEl);
     }
-    $('.knob').knob(defaultKnobOpts);
   };
 
   pattern.update = function(obj) {
