@@ -14,7 +14,10 @@
     },
     hide : function() {
       $('#overlay .progress').fadeOut('slow', function() {
-        $('#overlay').fadeOut();
+        $('#overlay').fadeOut(function() {
+          progress.update({ collected: 0, pending: 1 });
+          $('#overlay .progress').show();
+        });
       });
     }
   }

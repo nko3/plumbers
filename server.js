@@ -58,6 +58,8 @@ var
 
 server.listen(8000);
 
+io.set('log level', 0);
+
 io.sockets.on('connection', function(socket) {
   var send = function(name, obj) {
     Object.keys(socket.manager.rooms).forEach(function(roomName) {

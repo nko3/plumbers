@@ -1,10 +1,7 @@
 (function() {
-  var pattern = {
+  var pattern = {};
 
-
-  };
-
-  var el = $('#pattern .workarea table');
+  var el = $('#pattern .workarea');
   $('#pattern .toolbar :input[name=size]').live('change keyup mouseup', function(ev) {
     pattern.changeSize(parseInt($(this).val(), 10));
   });
@@ -20,18 +17,18 @@
     return false;
   });
 
-  $('#pattern .workarea td a.delete').live('click', function() {
+  $('#pattern .workarea a.delete').live('click', function() {
     var el = $(this);
-    pattern.removeInstrument(el.parents('tr').index());
+    pattern.removeInstrument(el.parents('.row').index('.row'));
     return false;
   });
 
-  $('#pattern .workarea td .note').live('click', function() {
+  $('#pattern .workarea .note').live('click', function() {
     var el = $(this);
     pattern.toggleNote({
       on: !el.hasClass('on'),
-      y: el.parents('tr').index(),
-      x: el.parents('td').index()
+      y: el.parents('.row').index('.row'),
+      x: el.index() -1
     });
   });
 
@@ -41,10 +38,10 @@
 
     ev.stopImmediatePropagation();
     // inject other bits
-    obj.path = ['pattern', current, 'instruments', el.parents('tr').index(), 'volume'].join('/');
+    obj.path = ['pattern', current, 'instruments', el.parents('.row').index('.row'), 'volume'].join('/');
     obj.meta = {
       value : obj.payload,
-      index: el.parents('tr').index(),
+      index: el.parents('.row').index('.row'),
       pattern: current
     };
 
@@ -92,8 +89,9 @@
   pattern.instrumentVolume = control(/pattern.[\d]*.instruments.[\d]*.volume$/, function(obj, skipNotify) {
     if (skipNotify) {
       var parts = pattern.collectSegments(skipNotify.path, [1,3], true);
-      var instrumentIndex = parts.pop();
-      var patternIndex = parts.pop();
+      var patternIndex = parts.shift();
+      var instrumentIndex = parts.shift();
+
 
       store.pattern[patternIndex].instruments[instrumentIndex].volume = obj;
 
@@ -143,9 +141,9 @@
 
     if (isNaN(instrumentIndex)) {
       var parts = pattern.collectSegments(skipNotify.path,[1,3]);
+      patternId = parts.shift();
+      instrumentIndex = parts.shift();
 
-      instrumentIndex = parts.pop();
-      patternId = parts.pop();
     }
 
     store.pattern[patternId].instruments.splice(instrumentIndex, 1);
@@ -155,29 +153,29 @@
       action : 'delete'
     });
 
-    $('#pattern .workarea tr:nth(' + instrumentIndex + ')').remove();
+    $('#pattern .workarea .row:nth(' + instrumentIndex + ')').remove();
   });
 
   pattern.toggleNote = control(/pattern.*notes\/[\d]*/, function(obj, skipNotify) {
-    var note = $('#pattern .workarea tr:nth(' + obj.y + ') td:nth(' + obj.x + ') .note');
     var patternIndex = current;
     var instrumentIndex, noteIndex, value;
 
     if (skipNotify) {
-      var parts = pattern.collectSegments(skipNotify.path, [1,3,5])[0];
-      patternIndex = parts.pop();
-      instrumentIndex = parts.pop();
-      noteIndex = parts.pop();
-      value = obj;
+      var parts = pattern.collectSegments(skipNotify.path, [1,3,5]);
+      patternIndex = parts.shift();
+      instrumentIndex = parts.shift();
+      noteIndex = parts.shift();
+      value = skipNotify.payload;
     } else {
       instrumentIndex = obj.y;
       noteIndex = obj.x;
       value = obj.on;
     }
+    var note = $('#pattern .workarea .row:nth(' + instrumentIndex + ') .note:nth(' + noteIndex + ')');
 
-    store.pattern[patternIndex].instruments[instrumentIndex].notes[noteIndex] = obj.on;
+    store.pattern[patternIndex].instruments[instrumentIndex].notes[noteIndex] = value;
 
-    if (obj.on) {
+    if (value) {
       note.addClass('on');
     } else {
       note.removeClass('on');
@@ -194,7 +192,7 @@
       ].join('/'),
 
       action : 'change',
-      payload : obj.on,
+      payload : value,
       meta: obj
     });
   }),
@@ -257,13 +255,13 @@
     }
 
     for (i; i<l; i++) {
-      var tr = '<tr><td class="instrument sync"><input data-path="pattern/instruments/volume" type="text" class="volume knob" data-min="0" data-max="100" data-width="40" data-height="40" value="' + (p.instruments[i].volume || 50) + '" /><a href="#" class="delete">X</a> ' + (p.instruments[i].name || 'unknown') + '</td>';
+      var row = '<div class="row"><div class="instrument sync"><input data-path="pattern/instruments/volume" type="text" class="volume knob" data-min="0" data-max="100" data-width="60" data-height="60" value="' + (p.instruments[i].volume || 50) + '" /><a href="#" class="delete">X</a> ' + (p.instruments[i].name || 'unknown') + '</div>';
       for (var j=0; j<p.width; j++) {
-        var on = (p.instruments[i] && p.instruments[i].notes[j+1]) ? ' on' : '';
-        tr +='<td><div class="note' + on + '"></div></td>';
+        var on = (p.instruments[i] && p.instruments[i].notes[j]) ? ' on' : '';
+        row +='<div class="note' + on + '"></div>';
       }
-      tr += '</tr>';
-      var trEl = $(tr);
+      row += '</div>';
+      var trEl = $(row);
       $('.knob', trEl).knob(defaultKnobOpts);
       el.append(trEl);
     }
@@ -294,19 +292,14 @@
       var now = window.performance.webkitNow();
 
       if (now - last > (1000*60)/(bpm*4)) {
-        var rows = $('#pattern .workarea tr');
-        $('td.playing', rows).removeClass('playing');
-        pattern.where++;
+        var rows = $('#pattern .workarea .row');
+        $('.note.playing', rows).removeClass('playing');
 
         rows.each(function() {
-          $('td:nth(' + pattern.where + ')', this).addClass('playing');
+          $('.note:nth(' + pattern.where + ')', this).addClass('playing');
         });
 
-        if (pattern.where > store.pattern[current].width) {
-          pattern.where = 0;
-        }
         last = now;
-
 
         store.pattern[current].instruments.forEach(function(instrument) {
           if (instrument.notes[pattern.where]) {
@@ -314,13 +307,18 @@
           }
         });
 
+        pattern.where++;
+        if (pattern.where > store.pattern[current].width) {
+          pattern.where = 0;
+        }
+
 
       }
     });
   };
   pattern.paused = true;
   pattern.pause = function() {
-    $('td.playing').removeClass('playing');
+    $('.note.playing').removeClass('playing');
     pattern.paused = true;
   }
 
