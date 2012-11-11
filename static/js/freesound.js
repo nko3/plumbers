@@ -2,8 +2,6 @@
   var key = 'b11b974175724370b5bed497d23e8fea';
   var base = 'http://www.freesound.org/api/';
 
-
-
   window.freesound = {
     search : function(terms, fn) {
       $.getJSON(base + 'sounds/search?f=duration:[0 TO 3] type:mp3&q=' + escape(terms) + '&api_key=' + key + '&callback=?', function(d) {
@@ -43,8 +41,8 @@
 
             var volume = this.volume || 100;
             source.gain.value = volume/100;
-            console.log(source.gain.value, volume);
-            source.connect(engine.context.destination);
+
+            source.connect(engine.destination);
             source.noteOn(when);
           }
           fn(null, play);

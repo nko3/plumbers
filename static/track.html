@@ -83,7 +83,15 @@
 
     <section id="toolbar">
       <a href="#">play</a>
-      <input type="text" name="bpm" data-path="toolbar/bpm" class="knob sync" value="120" data-min="0" data-max="400" data-width="60"/>
+      <section class="bpm">
+        bpm:
+        <input type="text" name="bpm" data-path="toolbar/bpm" class="knob sync" value="120" data-min="0" data-max="400" data-width="60"/>
+      </section>
+      <section class="volume">
+        volume:
+        <input type="text" name="volume" data-path="toolbar/volume" class="volume" value="85" data-min="0" data-max="100" data-width="60" />
+
+      </section>
       <section class="users">
         <span class="count">1</span>
       </section>
@@ -130,7 +138,6 @@
   </section>
   <script type="text/javascript">
     var defaultKnobUpdate = function() {
-      console.log(this);
       var obj = {
         action : 'change',
         path : this.$.data('path'),
@@ -162,7 +169,6 @@
       });
 
       $('.sync').live('updated', function(e, obj) {
-        console.log('control/change', obj);
         socket.emit('control/change', obj);
       });
 
@@ -174,16 +180,12 @@
     });
 
     socket.on('control/change', function (data) {
-      console.log('control/change', data);
       handleUpdate(data);
     });
 
     socket.on('user/count', function(count) {
-      console.log('NEW COUNT', count);
       $('#toolbar .users .count').text(count);
     });
-
-
   </script>
 
 

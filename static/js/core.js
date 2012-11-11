@@ -13,13 +13,14 @@ window.requestAnimationFrame = (function(){
 $(function() {
 
   $(document).on('keydown', function(ev) {
-    console.log('ev', ev);
-    if (ev.which === 32) {
+    if (ev.which === 32 && !$(ev.target).is(':input')) {
+      ev.preventDefault();
       if (pattern.paused) {
         pattern.play();
       } else {
         pattern.pause();
       }
+      return false;
     }
   });
 });
