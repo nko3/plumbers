@@ -17,14 +17,16 @@ $(function() {
           var f = sound.original_filename.replace(/\..*$/,'').replace(/[_-]/g, ' ').toLowerCase();
 
           results.append([
-            '<li class="sample" data-url="',
+            '<li class="sample">',
             //sound.
-            '" style="background: url(\'' + sound.spectral_m +'\') 50% 50% no-repeat">',
+            //'" style="background: url(\'' + sound.spectral_m +'\') 50% 50% no-repeat">',
             '<a href="#" class="preview" data-url="' + sound['preview-lq-mp3'] + '"><img src="/img/play.png" height="16" /></a> ',
             '<a href="#" class="add" data-url="' + sound.serve + '" data-id="' + sound.id + '">' + f + '</a>',
             '</li>'
           ].join(''));
         });
+
+        $('#helper .results').show();
       });
     }, 300);
   });
@@ -44,6 +46,7 @@ $(function() {
         play : play
       });
     });
+    $('#helper .results').hide();
     return false;
   });
 

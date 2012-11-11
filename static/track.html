@@ -62,16 +62,43 @@
       color: white;
       background-color: #444;
       padding:0;
-      padding-bottom:100px;
+      padding-bottom:200px;
     }
 
     ul {
       list-style: none;
     }
 
+    #pattern .toolbar {
+      width: 280px;
+      height: 100px;
+      border-bottom-right-radius: 10px;
+      border-bottom: 2px solid #555;
+      border-right: 2px solid #555;
+      padding: 10px;
+      background: #626262;
+      -webkit-box-shadow:  10px 10px 10px 1px rgba(0, 0, 0, .5);
+        box-shadow:  10px 10px 10px 1px rgba(0, 0, 0, .5);
+      margin-bottom: 50px;
+    }
+
+    #pattern .toolbar #helper input {
+      margin-top: 10px;
+      border: 1px solid #555;
+      width: 150px;
+      font-size: 1.5em;
+      background: #ddd;
+      font-family: Geo;
+    }
+
+    .toolbar .results ul.list {
+      position:absolute;
+      z-index:11;
+      background: #777;
+      border: 1px solid #fefefe;
+    }
+
     .toolbar li {
-      display:inline-block;
-      border: 1px solid #f0f;
       height: 20px;
       line-height: 20px;
       font-size: 1.2em;
@@ -81,29 +108,30 @@
       border: 2px solid #000;
     }
 
-    .workspace {
-      margin:2%;
+    #workspace {
       border-spacing: 0;
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px;
-      overflow-x: scroll;
-      margin-right: 100px;
-    }
+      padding-right: 30px;
+      }
 
     .row {
       margin-top:30px;
-      margin-left: 10%;
-      margin-right: 100px;
-      border: 2px solid #333;
+      margin-left: 90px;
+      border: 2px solid #C8C8C8;
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px;
       float:left;
-
-      white-space:nowrap;
       background: #666;
-      height: 63px;
+      white-space:nowrap;
+
+      height: 74px;
+      padding-right:5px;
+      padding-left: 300px;
+
+      box-shadow:  1px 1px 5px 1px rgba(0, 0, 0, .3);
     }
 
     .instrument {
@@ -112,25 +140,83 @@
       -moz-border-radius: 5px;
       border-radius: 5px;
       width: 300px;
+
+    }
+
+    .instrument .knob-container {
+      background: transparent url('/img/knob_coat3.png') 2px 2px no-repeat !important;
+      background-size: 130px 95px !important;
+      display:block!important;
+      width: 140px !important;
+      height: 120px !important;
+      margin-left: -330px;
+      margin-top:-10px !important;
+      position:absolute;
+      z-index: 10;
+    }
+
+    .instrument .knob-container canvas {
+      margin-top: 7px;
+      margin-left: 7px;
+
+    }
+
+    .instrument .knob-container .volume {
+      margin-top: 6px !important;
+      margin-left: -5px !important;
+      background-color: #606160 !important;
+      border: 1px solid #333 !important;
+
+      line-height: 9px !important;
+      padding: 0px !important;
+      font-family: Geo !important;
+      width:35px !important;
+      height:20px !important;
+      vertical-align: top;
+
+      border-radius: 10px !important;
+    }
+
+    .instrument .name {
+      position:absolute;
+      font-family: 'Yanone Kaffeesatz';
+      font-size: 1.2em;
+      width: 200px;
+      left: 210;
+      margin-top: 25;
+    }
+
+    .instrument .delete {
+      position:absolute;
+      font-family: 'Yanone Kaffeesatz';
+      font-size: 1.2em;
+      width: 200px;
+      left: 40px;
+      background: #333;
+      border:2px solid #c0c0c0;
+      width: 50px;
+      height: 25px;
+      padding: 3px;
+      border-radius: 5px;
+      z-index: 1;
     }
 
     .note {
-    border: 1px solid rgb(119,119,119);
-background: rgb(119,119,119); /* Old browsers */
-background: -moz-radial-gradient(center, ellipse cover,  rgba(119,119,119,1) 0%, rgba(77,77,77,1) 100%); /* FF3.6+ */
-background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(119,119,119,1)), color-stop(100%,rgba(77,77,77,1))); /* Chrome,Safari4+ */
-background: -webkit-radial-gradient(center, ellipse cover,  rgba(119,119,119,1) 0%,rgba(77,77,77,1) 100%); /* Chrome10+,Safari5.1+ */
-background: -o-radial-gradient(center, ellipse cover,  rgba(119,119,119,1) 0%,rgba(77,77,77,1) 100%); /* Opera 12+ */
-background: -ms-radial-gradient(center, ellipse cover,  rgba(119,119,119,1) 0%,rgba(77,77,77,1) 100%); /* IE10+ */
-background: radial-gradient(ellipse at center,  rgba(119,119,119,1) 0%,rgba(77,77,77,1) 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', endColorstr='#4d4d4d',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+      border: 1px solid rgb(119,119,119);
+      background: rgb(119,119,119);
+      background: -moz-radial-gradient(center, ellipse cover,  rgba(119,119,119,1) 0%, rgba(77,77,77,1) 100%); /* FF3.6+ */
+      background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(119,119,119,1)), color-stop(100%,rgba(77,77,77,1))); /* Chrome,Safari4+ */
+      background: -webkit-radial-gradient(center, ellipse cover,  rgba(119,119,119,1) 0%,rgba(77,77,77,1) 100%); /* Chrome10+,Safari5.1+ */
+      background: -o-radial-gradient(center, ellipse cover,  rgba(119,119,119,1) 0%,rgba(77,77,77,1) 100%); /* Opera 12+ */
+      background: -ms-radial-gradient(center, ellipse cover,  rgba(119,119,119,1) 0%,rgba(77,77,77,1) 100%); /* IE10+ */
+      background: radial-gradient(ellipse at center,  rgba(119,119,119,1) 0%,rgba(77,77,77,1) 100%); /* W3C */
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', endColorstr='#4d4d4d',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
       margin-top: 4px;
       padding: 2px;
-      width: 32px;
-      height: 32px;
+      width: 58px;
+      height: 58px;
       float: left;
       margin-left: 10px;
-
 
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
@@ -153,13 +239,21 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', end
       padding: 2px;
     }
 
-    .results .sample li {
-      height: 30px;
-      border-bottom: 1px solid white;
+    .results {
+      display: none;
+      padding: 10px;
+      padding-bottom: 30px;
+      margin-bottom: 100px;
     }
-    .results .sample a{
+
+    .results .sample {
+      height: 30px;
+      padding: 5px;
+    }
+    .results .sample a {
       color: white;
-      font-size: 1.5em;
+      font-size: 1.2em;
+      line-height: 2em;
       text-decoration: none;
     }
 
@@ -179,7 +273,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', end
       position:fixed;
       padding-bottom: 10px;
       padding-right: 30px;
-      z-index: 7;
+      z-index: 15;
       width: 250px;
       height: 80px;
       bottom:0;
@@ -200,7 +294,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', end
 
     #overlay {
       position: fixed;
-      z-index:10;
+      z-index:20;
       width: 100%;
       height:100%;
       top:0;
@@ -334,6 +428,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', end
       border-bottom-right-radius: 5px;
     }
 
+    .workarea {
+      margin-top: 50px;
+    }
+
   </style>
 </head>
 <body id="track">
@@ -368,30 +466,32 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', end
   </section>
 
   <section id="workspace">
-    <section id="helper">
-      <section class="input">
-        <input type="text" />
-      </section>
-      <section class="results">
-        <ul class="list"></ul>
-      </section>
+
     </section>
 
     <section id="workarea">
       <section id="pattern" data-path="pattern">
-        <h1>Pattern</h1>
         <section class="toolbar">
           <ul>
-            <li data-action="add">add:<a href="#" class="add">+</a></li>
             <li data-action="resize">width: <input type="text" name="size" data-path="pattern/width" /></li>
-
-            <li>pattern <input type="text" class="current" value="" /></span>/<span class="total">1</span></li>
+            <li>
+              pattern <input type="text" class="current" value="" />
+              </span>/<span class="total">1</span>
+            </li>
           </ul>
-        </section>
+
+          <section id="helper">
+            <section class="input">
+              Add Instrument: <input type="text" />
+            </section>
+            <section class="results">
+              <ul class="list"></ul>
+            </section>
+          </section>
         <section class="workarea sync" data-path="workspace/pattern"></section>
       </section>
 
-      <section id="playlist">
+      <!--section id="playlist">
         <h1>playlist</h1>
       </section>
 
@@ -400,7 +500,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', end
         <section class="container"></section>
       </section>
 
-    <section>
+    <section!-->
   </section>
 
   <section id="footer">
@@ -415,7 +515,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', end
       <div class="bar"></div>
     </div>
   </section>
-
+<div style="clear:both"></div>
   <script type="text/javascript">
     var defaultKnobUpdate = function(val) {
 
@@ -451,6 +551,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', end
                 , eat = sat + a             // End angle
                 , sa, ea                    // Previous angles
                 , r = 1;
+
+            c.width = 0;
+            c.width = this.o.width;
 
             c.lineWidth = this.lineWidth;
 
@@ -506,11 +609,12 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', end
     };
 
 
-    $(function() {
-      whiteKnob.onload = function() {
-        $('.knob').knob(defaultKnobOpts);
-      };
-    });
+
+    whiteKnob.onload = function() {
+      $('.knob').knob(defaultKnobOpts).each(function() {
+        $(this).addClass('knob-container');
+      });
+    };
 
     var socket = io.connect();
     window.ROOM = window.location.pathname.replace('/track/', '');
@@ -538,6 +642,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777777', end
     socket.on('user/count', function(count) {
       $('#toolbar .users .count').text(count);
     });
+
+    $(document).click(function() {
+      $('.toolbar .results').hide();
+    })
   </script>
 
 

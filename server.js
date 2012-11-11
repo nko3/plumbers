@@ -62,17 +62,13 @@ io.set('log level', 0);
 
 io.sockets.on('connection', function(socket) {
   var send = function(name, obj) {
-    Object.keys(socket.manager.rooms).forEach(function(roomName) {
-      if (roomName) {
-        console.log('BROADCAST', roomName);
-        socket.broadcast.to(roomName.replace('/','')).emit(name, obj);
-      }
-    });
+    socket.broadcast.to(socket.room).emit(name, obj);
   }
 
   socket.on('register', function(data) {
     var roomId = data.room;
     socket.join(data.room);
+    socket.room = data.room;
     io.sockets.in(data.room).emit('user/count', io.sockets.clients(data.room).length);
     db.collection('tracks').findOne({ _id : roomId }, function(err, rec) {
       if (rec) {

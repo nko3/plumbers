@@ -255,14 +255,16 @@
     }
 
     for (i; i<l; i++) {
-      var row = '<div class="row"><div class="instrument sync"><input data-path="pattern/instruments/volume" type="text" class="volume knob" data-min="0" data-max="100" data-width="60" data-height="60" value="' + (p.instruments[i].volume || 50) + '" /><a href="#" class="delete">X</a> ' + (p.instruments[i].name || 'unknown') + '</div>';
+      var row = '<div class="row"><div class="instrument sync"><input data-path="pattern/instruments/volume" type="text" class="volume knob" data-min="0" data-max="100" data-width="81" data-height="81" value="' + (p.instruments[i].volume || 50) + '" /><a href="#" class="delete"><img src="/img/delete.png" height="25" /></a> <span class="name">' + (p.instruments[i].name || 'unknown') + '</span></div>';
       for (var j=0; j<p.width; j++) {
         var on = (p.instruments[i] && p.instruments[i].notes[j]) ? ' on' : '';
         row +='<div class="note' + on + '"></div>';
       }
       row += '</div>';
       var trEl = $(row);
-      $('.knob', trEl).knob(defaultKnobOpts);
+      $('.knob', trEl).knob(defaultKnobOpts).each(function() {
+        $(this).addClass('knob-container');
+      });
       el.append(trEl);
     }
   };
