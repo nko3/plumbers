@@ -5,7 +5,7 @@
     @import url(http://fonts.googleapis.com/css?family=Geo|Yanone+Kaffeesatz);
 </style>
 <style>
-
+	
 	 body{
 		background-color:#F00;
 		height:100%;
@@ -16,6 +16,10 @@
 		color:#fff;
 		font-family: 'Yanone Kaffeesatz';
 		overflow: hidden;
+	 }
+	 p{
+		margin:4px;
+	 
 	 }
 	 #start{
 		margin:0 auto;
@@ -30,11 +34,16 @@
 	 }
 	 #description{
 		font-size:2em;
+		text-align:center;
 	 }
 	#footer{
 		text-align:center;
 		font-size:0.8em;
 	 }
+	#logo{
+		padding-top:20px;
+		padding-bottom:10px;
+	}
 	 
 	.button {
 		font-family: 'Yanone Kaffeesatz';
@@ -43,9 +52,9 @@
 		cursor: pointer;
 		text-align: center;
 		text-decoration: none;
-		font: 2.2em/100% Arial, Helvetica, sans-serif;
+		font: 1em/100% Arial, Helvetica, sans-serif;
 		font-family: 'Yanone Kaffeesatz';
-		padding: .2em 3em .2em;
+		padding: .2em 2em .2em;
 		text-shadow: 0 1px 1px rgba(0,0,0,.3);
 		-webkit-border-radius: .5em; 
 		-moz-border-radius: .5em;
@@ -149,16 +158,16 @@
 
 
 <section id="start">
-  <center>
-		<section id="description">Produce music with your friends online!</section>
-		<br></br>
+		<section id="description">
+			<img id="logo" src="img/plumbers_logo.png"/>
+			<p>Produce music with your friends online!</p>
+		    <form action="/track" method="post">
+		    	<input class="fade button orange"  type="submit" id="go" value="Start" />
+		    </form>
+	  </section>
 
 		
-	  <form action="/track" method="post">
-	  
-		<input class="fade button orange"  type="submit" id="go" value="Start" />
-	  </form>
-  </center>
+
 </section>
 
 <section id="footer">
