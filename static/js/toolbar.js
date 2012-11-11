@@ -22,13 +22,7 @@
       }.bind(this));
     }
   };
-console.log({
-    fgColor: defaultKnobOpts.fgColor,
-    bgColor: defaultKnobOpts.bgColor,
-    thickness : defaultKnobOpts.thickness,
-    change : toolbar.volume,
-    release : toolbar.volume
-  });
+
 $(function() {
   $(':input.volume', el).knob({
     fgColor: defaultKnobOpts.fgColor,
