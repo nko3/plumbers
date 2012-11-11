@@ -20,7 +20,7 @@ $(function() {
             '<li class="sample" data-url="',
             //sound.
             '" style="background: url(\'' + sound.spectral_m +'\') 50% 50% no-repeat">',
-            '<a href="#" class="preview" data-url="' + sound['preview-lq-mp3'] + '">|></a> ',
+            '<a href="#" class="preview" data-url="' + sound['preview-lq-mp3'] + '"><img src="/img/play.png" height="16" /></a> ',
             '<a href="#" class="add" data-url="' + sound.serve + '" data-id="' + sound.id + '">' + f + '</a>',
             '</li>'
           ].join(''));
