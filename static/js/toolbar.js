@@ -8,6 +8,8 @@
       $(':input[name=bpm]', el).change();
     }),
     volume : function(val) {
+      localStorage.setItem('volume', val);
+
       val = parseInt(val);
       $(':input[name=volume]', el).val(val);
       $(':input[name=volume]', el).change();
@@ -23,7 +25,7 @@
     }
   };
 
-$(function() {
+
   $(':input.volume', el).knob({
     fgColor: defaultKnobOpts.fgColor,
     bgColor: defaultKnobOpts.bgColor,
@@ -31,6 +33,9 @@ $(function() {
     change : toolbar.volume,
     release : toolbar.volume
   });
-});
+
+  if (localStorage.getItem('volume')) {
+    toolbar.volume(localStorage.getItem('volume'));
+  }
 
 })();
