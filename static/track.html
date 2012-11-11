@@ -228,6 +228,7 @@
       -webkit-border-top-left-radius: 10px;
       -moz-border-radius-topleft: 10px;
       border-top-left-radius: 10px;
+      width: 225px;
     }
 
     #header .bpm {
@@ -279,6 +280,20 @@
       line-height: 1.2em;
     }
 
+    .vote {
+      bottom: 5px;
+      right: 5px;
+      position:fixed;
+      background: #999;
+      border:2px solid #DC5500;
+      -webkit-border-top-right-radius: 5px;
+      -webkit-border-bottom-right-radius: 5px;
+      -moz-border-radius-topright: 5px;
+      -moz-border-radius-bottomright: 5px;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+
   </style>
 </head>
 <body id="track">
@@ -291,6 +306,10 @@
 
       <section class="users right">
         Users: <span class="count">0</span>
+        <span class="vote">
+        <iframe src="http://nodeknockout.com/iframe/plumbers" frameborder=0 scrolling=no allowtransparency=true width=115 height=25>
+      </iframe>
+        </span>
       </section>
       <section class="bpm left">
         <span class="label">bpm</span>
