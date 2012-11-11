@@ -33,11 +33,18 @@
       // Decode asynchronously
       request.onload = function() {
         engine.context.decodeAudioData(request.response, function(buffer) {
+          var pause = function() {
+            this && this.noteOff && this.noteOff(0);
+          };
+
           var play = function(when) {
 
             when = when || 0;
             var source = engine.context.createBufferSource();
             source.buffer = buffer;
+
+            // TODO: fix this, as it is leaky
+            $(document).one('pause', pause.bind(source));
 
             var volume = this.volume || 100;
             source.gain.value = volume/100;

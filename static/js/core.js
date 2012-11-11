@@ -19,6 +19,7 @@ $(function() {
         pattern.play();
       } else {
         pattern.pause();
+        $(document).trigger('pause');
       }
       return false;
     }
