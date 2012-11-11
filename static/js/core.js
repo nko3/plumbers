@@ -11,11 +11,11 @@ window.requestAnimationFrame = (function(){
 })();
 
 $(function() {
-
-  $(document).on('keydown', function(ev) {
-    if (ev.which === 32 && !$(ev.target).is(':input')) {
+  var togglePlay = function(ev) {
+    if (!ev.keyCode || (ev.which === 32 && !$(ev.target).is(':input'))) {
       ev.preventDefault();
       if (pattern.paused) {
+        $(document).trigger('play');
         pattern.play();
       } else {
         pattern.pause();
@@ -23,7 +23,13 @@ $(function() {
       }
       return false;
     }
-  });
+  }
+
+
+  $(document).on('keydown', togglePlay);
+  $('#header .play').click(togglePlay);
+
+
 });
 
 (function() {

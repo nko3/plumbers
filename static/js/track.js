@@ -6,7 +6,7 @@
       // start preloading all of the instrument samples
 
       var pending = 0, collected = 0;;
-      $(document).trigger('preloading', { pending: pending, collected: collected });
+      $(document).trigger('preloading');
 
       data.pattern && data.pattern.forEach(function(pattern) {
         pattern.instruments.forEach(function(instrument) {

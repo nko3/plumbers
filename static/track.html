@@ -6,15 +6,62 @@
   <script type="text/javascript" src="/js/core.js"></script>
   <script type="text/javascript" src="/js/track.js"></script>
   <style>
-    section {
-      border: 1px solid #fff;
-      padding: 10px;
+    @import url(http://fonts.googleapis.com/css?family=Geo|Yanone+Kaffeesatz);
+  </style>
+  <style>
+    font-family: 'Geo', sans-serif;
+    font-family: 'Yanone Kaffeesatz', sans-serif;
+
+    html, body, div, span, applet, object, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    b, u, i, center,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, tbody, tfoot, thead, tr, th, td,
+    article, aside, canvas, details, embed,
+    figure, figcaption, footer, header, hgroup,
+    menu, nav, output, ruby, section, summary,
+    time, mark, audio, video {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      font-size: 100%;
+      font: inherit;
+      vertical-align: baseline;
+    }
+    /* HTML5 display-role reset for older browsers */
+    article, aside, details, figcaption, figure,
+    footer, header, hgroup, menu, nav, section {
+      display: block;
+    }
+    body {
+      line-height: 1;
+    }
+    ol, ul {
+      list-style: none;
+    }
+    blockquote, q {
+      quotes: none;
+    }
+    blockquote:before, blockquote:after,
+    q:before, q:after {
+      content: '';
+      content: none;
+    }
+    table {
+      border-collapse: collapse;
+      border-spacing: 0;
     }
 
     body {
-      font-family: Helvetica, Arial;
+      font-family: Geo, Arial;
+      font-size: 1.2em;
       color: white;
       background-color: #444;
+      padding:0;
     }
 
     ul {
@@ -34,7 +81,19 @@
     }
 
     table {
-      border: 1px solid red;
+      margin:2%;
+      border-spacing: 0;
+            -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;
+
+    }
+    table tr {
+      border: 2px solid #f0f;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;
+
     }
 
     table td {
@@ -42,7 +101,10 @@
     }
 
     table td.instrument {
-      border: 1px solid green;
+      border: 1px solid white;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;
     }
 
     td .note {
@@ -74,38 +136,141 @@
       background: orange;
     }
 
-
     #header {
-      height: 50px;
-      border-bottom:1px solid #FFF;
+      height: 100px;
+      border: none;
+      padding: 10px;
       padding-left: 200px;
-      background: url(/img/logo.png) no-repeat;
+      background: url(/img/plumbers_logo.png) no-repeat 30px 30px #222;
+      margin:0;
+      margin-bottom:10px;
+    }
+
+
+    #overlay {
+      position: fixed;
+      z-index:10;
+      width: 100%;
+      height:100%;
+      top:0;
+      left:0;
+      background: rgba(0,0,0,0.8);
+    }
+
+    #overlay .progress {
+      border: 1px solid #e03d00;
+      padding: 4px;
+      border: 1px solid #;
+      background: rgba(0,0,0,.1);
+      min-width: 20%;
+      position: fixed;
+      top: 35%;
+      left: 40%;
+      height: 2%;
+    }
+
+    #overlay .progress .bar {
+      background: #e03d00;
+      position: absolute;
+      top:0;
+      left:0;
+      height:100%;
+    }
+
+    #overlay .progress .inner {
+      position:relative;
+      width: 100%;
+      height: 100%;
+      line-height: 4em;
+      text-align:center;
+      font-size: 1.2em;
+    }
+
+    #header .left {
+      float: left;
+    }
+
+    #header .right {
+      float: right;
+    }
+
+    #header .play-pause {
+      margin-right: 10%;
+      padding-top: 20px;
+    }
+/*
+    #header .users {
+      line-height: 100px;
+      font-size: 1.2em;
+      margin-left: 20%;
+      font-family: 'Yanone Kaffeesatz';
+    }
+*/
+    #header .users {
+      position:fixed;
+      z-index: 5;
+      right: 0;
+      bottom:0;
+
+      height: 30px;
+      font-size: 1.2em;
+      padding:5px;
+      padding-left:10px;
+      background-color: rgba(0,0,0,.4);
+      font-family: 'Yanone Kaffeesatz';
+      border-top: 1px solid #333;
+      border-left: 1px solid #333;
+      -webkit-border-top-left-radius: 10px;
+      -moz-border-radius-topleft: 10px;
+      border-top-left-radius: 10px;
+    }
+
+    #header .bpm {
+      padding-top: 10px;
+      margin-left: 10%;
+    }
+
+    #header .volume {
+      padding-top: 10px;
+    }
+
+    #header .users .count {
+      font-family: Geo;
+      font-size: 1.2em;
+      line-height: 1.2em;
     }
 
 
   </style>
 </head>
 <body id="track">
-  <section id="header"></section>
-
-  <section id="workspace">
+  <section id="header">
 
     <section id="toolbar">
-      <a href="#">play</a>
-      <section class="bpm">
-        bpm:
-        <input type="text" name="bpm" data-path="toolbar/bpm" class="knob sync" value="120" data-min="0" data-max="400" data-width="60"/>
+      <section class="play-pause left">
+        <a href="#" class="play"><img src="/img/play.png" height="58"/></a>
       </section>
-      <section class="volume">
+
+      <section class="users right">
+        Users: <span class="count">0</span>
+      </section>
+      <section class="bpm right">
+        bpm:
+        <input type="text" name="bpm" data-path="toolbar/bpm" class="knob sync" value="120" data-min="0" data-max="400" data-width="70" data-height="70"/>
+      </section>
+      <section class="volume right">
         volume:
-        <input type="text" name="volume" data-path="toolbar/volume" class="volume" value="85" data-min="0" data-max="100" data-width="60" />
+        <input type="text" name="volume" data-path="toolbar/volume" class="volume" value="85" data-min="0" data-max="100" data-width="70" data-height="70"/>
 
       </section>
-      <section class="users">
-        <span class="count">1</span>
-      </section>
+
     </section>
 
+
+
+  </section>
+
+  <section id="workspace">
     <section id="helper">
       <section class="input">
         <input type="text" />
@@ -146,6 +311,16 @@
   <section id="footer">
 
   </section>
+
+  <section id="overlay">
+    <div class="progress">
+      <div class="inner">
+        loading (<span class="percent">0%</span>)
+      </div>
+      <div class="bar"></div>
+    </div>
+  </section>
+
   <script type="text/javascript">
     var defaultKnobUpdate = function() {
       var obj = {
@@ -159,8 +334,10 @@
 
     window.defaultKnobOpts = {
       fgColor: '#FFC800',
-      bgColor: '#211A00',
-      thickness : .6,
+      bgColor: 'rgba(0,0,0,0)',
+      thickness : .1,
+      angleOffset: -150,
+      angleArc: 300,
       change : defaultKnobUpdate,
       release : defaultKnobUpdate
     };
@@ -205,5 +382,6 @@
   <script type="text/javascript" src="/js/freesound.js"></script>
   <script type="text/javascript" src="/js/helper.js"></script>
   <script type="text/javascript" src="/js/toolbar.js"></script>
+  <script type="text/javascript" src="/js/progress.js"></script>
 </body>
 </html>
